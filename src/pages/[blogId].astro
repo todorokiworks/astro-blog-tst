@@ -1,0 +1,34 @@
+---
+import type { GetStaticPaths } from "astro";
+import Layout from "../layouts/Layout.astro";
+import { getBlogs, getBlogDetail } from "../libs/microcms";
+
+export async function getStaticPaths() {
+    const response = await getBlogs({ fields: ["id"] });
+    return response.contents.map((blog: any) => ({
+        params: {
+            blogId: blog.id,
+        },
+    }));
+}
+
+const { blogId } = Astro.params;
+const blog = await getBlogDetail(blogId as string);
+---
+
+<Layout title="2回目の投稿">
+    <main>
+        <h1>{blog.title}</h1>
+        <p>公開日時:{new Date(blog.publishedAt).toLocaleDateString()}</p>
+        <div set:html={blog.content} />
+    </main>
+</Layout>
+
+<style>
+    main {
+        color: #fff;
+        margin: auto;
+        padding: 1em;
+        max-width: 60ch;
+    }
+</style>
